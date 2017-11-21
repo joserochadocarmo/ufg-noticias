@@ -1,7 +1,7 @@
 {
-  "name": "ufg-eventos",
-  "description": "Lista todos os eventos da UFG - Universidade Federal de Goiás",
-  "main": "ufg-eventos.html",
+  "name": "ufg-noticias",
+  "description": "Lista todos as noticias da UFG - Universidade Federal de Goiás",
+  "main": "ufg-noticias.html",
   "license": "MIT",
   "dependencies": {
     "polymer": "Polymer/polymer#^2.0.0",

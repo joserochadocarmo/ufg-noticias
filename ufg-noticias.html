@@ -93,17 +93,17 @@
           max-width: 100%;
         }
       }
-
     </style>
 
     <iron-media-query id="mediaQuery" query="(max-width: 640px)" on-query-matches-changed="switchQuery"></iron-media-query>
 
-    <iron-ajax id="nextNews" url="[[_getParams(page)]]" loading="{{loading}}"  on-response="_handleResponse" debounce-duration="300"></iron-ajax>
+    <iron-ajax id="nextNews" url="[[_getParams(page)]]" loading="{{loading}}" on-response="_handleResponse" debounce-duration="300"></iron-ajax>
 
     <iron-ajax auto url="[[_getParams()]]" handleAs="text" loading="{{loading}}" last-response="{{lastResponse}}" debounce-duration="300"></iron-ajax>
 
     <div class="center">
-      <ufg-search placeholder="Pesquisar..." type="search"></ufg-search>
+      <ufg-search id="search" placeholder="Pesquisar..." type="search" value="[[searchValue()]]"></ufg-search>
+      <!--<input hidden="true" type="submit" />-->
     </div>
 
     <div class="list controles">
@@ -134,13 +134,13 @@
 
     <iron-pages attr-for-selected="name" selected="[[selector]]">
       <div name="list">
-      <iron-scroll-threshold id="scrollThreshold" scroll-target="document" on-lower-threshold="loadMoreData" lower-threshold="600" >
-        <template is="dom-repeat" items="{{lastResponse.news}}" as="blog">
-          <ufg-noticia blog="[[blog]]" >
-            <div slot="list"></div>
-          </ufg-noticia>
-        </template>
-      </iron-scroll-threshold>
+        <iron-scroll-threshold id="scrollThreshold" scroll-target="document" on-lower-threshold="loadMoreData" lower-threshold="100">
+          <template is="dom-repeat" items="{{lastResponse.news}}" as="blog">
+            <ufg-noticia blog="[[blog]]">
+              <div slot="list"></div>
+            </ufg-noticia>
+          </template>
+        </iron-scroll-threshold>
       </div>
       <div name="grid" class="cards">
         <template is="dom-repeat" items="{{lastResponse.news}}" as="blog">
@@ -167,9 +167,9 @@
      * @demo demo/index.html
      */
     class UfgNoticias extends Polymer.Element {
-     static get is() { return 'ufg-noticias'; }
+      static get is() { return 'ufg-noticias'; }
       static get properties() {
-        return {          
+        return {
           // https://www.ufg.br/news?direction=desc--1&sort=journal_news.created_at;pg_sleep(10)---&tags=%C3%9Altima+hora
           lastResponse: {
             type: Object,
@@ -188,21 +188,26 @@
           },
           page: {
             type: Number,
-            value: 0,
-            notify:true
+            value: 1,
+            notify: true
           }
         };
       }
 
       connectedCallback() {
         super.connectedCallback();
+        let self = this;
+        this.$.search.addEventListener("icon-click", function (e) {
+          // self.page = 0;
+          location.search = `utf8=✓&search=${e.detail}`;
+        });
       }
 
       /**
       * Retorna os parâmetos da URL.
       **/
       _getParams(page) {
-        return this.url  + "?" + location.search +`&page=${this.page}&per_page=10` ;
+        return this.url + "?" + location.search + `&page=${this.page}&per_page=10`;
       }
 
       _handleResponse(e) {
@@ -216,18 +221,30 @@
           this.selector = "grid"
       }
 
-      loadMoreData(){        
+      loadMoreData() {
         let self = this;
-        setTimeout(function() {
-          self.page ++;
+        setTimeout(function () {
           this.$.scrollThreshold.clearTriggers();
-          if(self.page>1){
-            if(self.page*10>self.lastResponse.meta.total){
+          if (self.page > 1) {
+            //Chegando ao fim da pagina.
+            if (self.page > (Math.ceil(self.lastResponse.meta.total/10))) {
               return;
             }
             self.$.nextNews.generateRequest();
           }
+          self.page++;          
         }.bind(this), 500);
+      }
+
+      searchValue(){        
+        var found;
+        window.location.search.substr(1).split("&").forEach(function(item) {
+            if ("search" ==  item.split("=")[0]) {
+                found = item.split("=")[1];
+            }
+        });
+        found =found || "";
+        return decodeURIComponent(found);        
       }
 
     }

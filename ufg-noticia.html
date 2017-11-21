@@ -121,15 +121,6 @@
         justify-content: space-between;
       }
 
-      .child {
-        /*flex: 1;
-        display: flex;
-        flex-direction: column;
-        justify-content: space-between;
-        vertical-align: bottom;*/
-        /*min-height: 107px;*/
-      }
-
       @media (max-width: 640px) {
         .primary {
           font-size: 14px;
@@ -193,7 +184,7 @@
               <div class="littleText">
                 <iron-icon class="mini" icon="icons:event"></iron-icon>
                 <span class="title">Data:</span>
-                <moment-element datetime="[[blog.created_at]]" output-format="MMM DD YYYY"></moment-element>
+                <moment-element datetime="[[blog.created_at]]" output-format="llll"></moment-element>
               </div>
               <div class="littleText">
                 <iron-icon class="mini" icon="icons:label"></iron-icon>
@@ -227,7 +218,7 @@
               <div class="littleText">
                 <iron-icon class="mini" icon="icons:event"></iron-icon>
                 <span class="title">Data:</span>
-                <moment-element datetime="[[blog.created_at]]" output-format="MMM DD YYYY"></moment-element>
+                <moment-element datetime="[[blog.created_at]]" output-format="llll"></moment-element>
               </div>
               <div class="littleText">
                 <iron-icon class="mini" icon="icons:label"></iron-icon>

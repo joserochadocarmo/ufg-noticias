@@ -152,11 +152,10 @@ Custom property | Description | Default
         autosave$="[[autosave]]"
         results$="[[results]]"
         accept$="[[accept]]"
-        multiple$="[[multiple]]">
+        multiple$="[[multiple]]"
+        on-keypress="_keyPressed" value$="[[value]]">
 
-      <template is="dom-if" if="[[value]]">
-        <paper-icon-button id="clear" suffix icon="[[iconClear]]" on-click="_clear" tabindex="-1"></paper-icon-button>
-      </template>
+      
     </div>
 
   </template>
@@ -214,11 +213,17 @@ Custom property | Description | Default
 
     _onIconClick: function() {
       this.dispatchEvent(new CustomEvent('change'), {bubbles: true});
-      this.dispatchEvent(new CustomEvent('icon-click'), {bubbles: false});
+      this.dispatchEvent(new CustomEvent('icon-click',{detail:this.$.input.value}), {bubbles: false});
     },
 
     _onInputFocus: function(e) {
       e.currentTarget.setSelectionRange(0, e.currentTarget.value.length);
+    },
+
+    _keyPressed: function(e) {      
+        if (event.which == 13 || event.keyCode == 13) {
+          this.dispatchEvent(new CustomEvent('icon-click',{detail:this.$.input.value}), {bubbles: false});
+        }
     }
 
   });
