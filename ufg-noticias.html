@@ -1,0 +1,234 @@
+<!--<link rel="import" href="./bower_components/polymer/polymer-element.html">-->
+<link rel="import" href="./bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="./bower_components/moment-element/moment-element.html">
+<link rel="import" href="./bower_components/moment-element/moment-with-locales-import.html">
+<link rel="import" href="./bower_components/paper-spinner/paper-spinner.html">
+<link rel="import" href="./bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="./bower_components/paper-button/paper-button.html">
+<link rel="import" href="./bower_components/iron-selector/iron-selector.html">
+<link rel="import" href="./bower_components/iron-pages/iron-pages.html">
+<link rel="import" href="./bower_components/iron-scroll-threshold/iron-scroll-threshold.html">
+<link rel="import" href="./bower_components/iron-demo-helpers/demo-pages-shared-styles.html">
+<link rel="import" href="./bower_components/iron-media-query/iron-media-query.html">
+
+<link rel="import" href="ufg-noticia.html">
+<link rel="import" href="ufg-search.html">
+
+<dom-module id="ufg-noticias">
+  <template>
+
+    <style is="custom-style">
+       :host {
+        display: block;
+        background-color: var(--event-bg, white);
+        font-family: 'Roboto', 'Noto', sans-serif;
+        font-size: 14px;
+      }
+
+      .list {
+        padding-top: 5px;
+        max-width: 800px;
+        margin: auto;
+        @apply(--layout-horizontal);
+        @apply(--layout-center-justified);
+      }
+
+      paper-spinner {
+        position: absolute;
+      }
+
+      .center {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+
+      paper-button {
+        color: #666;
+        font-weight: bold;
+        text-transform: none;
+      }
+
+      .controles {
+        width: 512px;
+      }
+
+      iron-selector {
+        @apply(--layout-horizontal);
+        @apply(--layout-center-justified);
+        flex: 1;
+        /*margin-left: 50px;*/
+      }
+
+      iron-selector paper-button {
+        opacity: .7;
+      }
+
+      iron-selector paper-button.iron-selected {
+        opacity: 1;
+        box-shadow: var(--shadow-elevation-2dp_-_box-shadow);
+        /*color: #009688;*/
+      }
+
+      .cards {
+        @apply(--layout-horizontal);
+        @apply(--layout-around-justified);
+        @apply(--layout-wrap);
+        height: 100%;
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      .grid {
+        display: flex;
+        max-width: 33%;
+      }
+
+      @media (max-width: 640px) {
+        .controles {
+          display: none;
+        }
+
+        .grid {
+          max-width: 100%;
+        }
+      }
+
+    </style>
+
+    <iron-media-query id="mediaQuery" query="(max-width: 640px)" on-query-matches-changed="switchQuery"></iron-media-query>
+
+    <iron-ajax id="nextNews" url="[[_getParams(page)]]" loading="{{loading}}"  on-response="_handleResponse" debounce-duration="300"></iron-ajax>
+
+    <iron-ajax auto url="[[_getParams()]]" handleAs="text" loading="{{loading}}" last-response="{{lastResponse}}" debounce-duration="300"></iron-ajax>
+
+    <div class="center">
+      <ufg-search placeholder="Pesquisar..." type="search"></ufg-search>
+    </div>
+
+    <div class="list controles">
+      <iron-selector attr-for-selected="name" selected="{{selector}}" fallback-selection="list">
+        <!--<ufg-search placeholder="Pesquisar..."></ufg-search>-->
+        <paper-button name="list" tabindex="0" animated="" elevation="0">
+          <iron-icon icon="view-list"></iron-icon>Lista
+        </paper-button>
+        <paper-button name="grid" tabindex="0" animated="" elevation="0">
+          <iron-icon icon="view-module"></iron-icon>Grade
+        </paper-button>
+      </iron-selector>
+    </div>
+
+    <!--<div class="center">
+      <paper-spinner active$="{{loading}}"></paper-spinner>
+    </div>-->
+
+    <div class="list">
+      <template is="dom-if" if="{{lastResponse.news.length}}">
+        <p class="center">{{lastResponse.meta.total}} notícias(s) encontrada(s)</p>
+      </template>
+
+      <template is="dom-if" if="{{!lastResponse.news.length}}">
+        <p class="center">Nenhuma notícia encontrada!</p>
+      </template>
+    </div>
+
+    <iron-pages attr-for-selected="name" selected="[[selector]]">
+      <div name="list">
+      <iron-scroll-threshold id="scrollThreshold" scroll-target="document" on-lower-threshold="loadMoreData" lower-threshold="600" >
+        <template is="dom-repeat" items="{{lastResponse.news}}" as="blog">
+          <ufg-noticia blog="[[blog]]" >
+            <div slot="list"></div>
+          </ufg-noticia>
+        </template>
+      </iron-scroll-threshold>
+      </div>
+      <div name="grid" class="cards">
+        <template is="dom-repeat" items="{{lastResponse.news}}" as="blog">
+          <ufg-noticia blog="[[blog]]" class="grid">
+            <div slot="grid"></div>
+          </ufg-noticia>
+        </template>
+      </div>
+    </iron-pages>
+    <div class="center">
+      <paper-spinner active$="{{loading}}"></paper-spinner>
+    </div>
+
+  </template>
+
+  <script>
+    moment.locale('pt-BR');
+    /**
+     * `ufg-noticias`
+     * Lista todas as noticias da UFG - Universidade Federal de Goiás
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
+    class UfgNoticias extends Polymer.Element {
+     static get is() { return 'ufg-noticias'; }
+      static get properties() {
+        return {          
+          // https://www.ufg.br/news?direction=desc--1&sort=journal_news.created_at;pg_sleep(10)---&tags=%C3%9Altima+hora
+          lastResponse: {
+            type: Object,
+            value: {}
+          },
+          url: {
+            type: String,
+            value: () => {
+              let url = window.location.hostname;
+              return url.indexOf("ufg.br") > 0 ? "/news.json" : "https://www.ufg.br/news.json"
+            }
+          },
+          today: {
+            type: Object,
+            value: moment()
+          },
+          page: {
+            type: Number,
+            value: 0,
+            notify:true
+          }
+        };
+      }
+
+      connectedCallback() {
+        super.connectedCallback();
+      }
+
+      /**
+      * Retorna os parâmetos da URL.
+      **/
+      _getParams(page) {
+        return this.url  + location.search +`&page=${this.page}&per_page=10` ;
+      }
+
+      _handleResponse(e) {
+        e.detail.response.news.unshift(...this.lastResponse.news);
+        this.lastResponse = e.detail.response;
+      }
+
+      switchQuery(e) {
+        let mobile = this.$.mediaQuery.queryMatches;
+        if (mobile)
+          this.selector = "grid"
+      }
+
+      loadMoreData(){        
+        let self = this;
+        setTimeout(function() {
+          self.page ++;
+          this.$.scrollThreshold.clearTriggers();
+          if(self.page>1){          
+            self.$.nextNews.generateRequest();
+          }
+        }.bind(this), 500);
+      }
+
+    }
+
+    window.customElements.define(UfgNoticias.is, UfgNoticias);
+  </script>
+</dom-module>

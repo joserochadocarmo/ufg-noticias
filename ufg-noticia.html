@@ -1,0 +1,316 @@
+<!--<link rel="import" href="./bower_components/polymer/polymer-element.html">-->
+<link rel="import" href="./bower_components/paper-card/paper-card.html">
+<link rel="import" href="./bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="./bower_components/iron-media-query/iron-media-query.html">
+<link rel="import" href="./bower_components/iron-image/iron-image.html">
+<link rel="import" href="./bower_components/moment-element/moment-element.html">
+
+<dom-module id="ufg-noticia">
+  <template>
+
+    <style is="custom-style" >
+      h2 {
+        margin-top: -2px;
+        margin-bottom: 17px;
+      }
+
+      h2:hover {
+        color: steelblue !important;
+      }
+
+      .item {
+        position: relative;
+        padding-left: 15px;
+        padding-right: 15px;
+        display: var(--layout-block_-_display);
+        background-color: var(--event-item-bg, white);
+        border: 1px solid #ddd;
+        border-bottom: 1px solid #ddd;
+        padding-bottom: 15px;
+        padding-top: 20px;
+        margin-bottom: 10px;
+      }
+
+      .item-header,
+      .featured-item-header {
+        /*@apply(--layout-horizontal);
+        @apply(--layout-flex);
+        @apply(--layout-justified);*/
+        text-transform: uppercase;
+        padding-bottom: 10px;
+        color: #777;
+      }
+
+      .item .item-content {
+        @apply(--layout-horizontal);
+        @apply(--layout-flex);
+        @apply(--layout-justified);
+      }
+
+      .item .item-content .content {
+        @apply(--layout-flex);
+      }
+
+      .item:hover {
+        background: #f5f5f5;
+      }
+
+      .item:focus {
+        background: #f5f5f5;
+      }
+
+      .list {
+        padding-top: 5px;
+        max-width: 800px;
+        margin: auto;
+        /*@apply(--layout-horizontal);
+        @apply(--layout-center-justified);*/
+      }
+
+      a {
+        cursor: pointer;
+        text-decoration: none !important;
+        color: #777;
+      }
+
+      a:hover {
+        color: steelblue !important;
+      }
+
+      .folder {
+        min-height: 140px;
+        min-width: 130px;
+        box-sizing: border-box;
+        background-color: #DDD;
+        /*background: #f5f5f5;*/
+      }
+
+      .folder-left {
+        margin-right: 2.5%;
+      }
+
+      .primary {
+        font-size: 18px;
+        font-weight: bold;
+        color: #777;
+        /*color: #2e2e2e;*/
+      }
+
+      .shortText {
+        font-size: 15px;
+        color: #777;
+      }
+
+      .littleText {
+        font-size: 13px;
+        color: #777;
+      }
+
+      .mini {
+        --iron-icon-height: 18px;
+        --iron-icon-width: 18px;
+      }
+
+      .title {
+        font-weight: bold;
+      }
+
+      .container {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+      }
+
+      .child {
+        /*flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        vertical-align: bottom;*/
+        /*min-height: 107px;*/
+      }
+
+      @media (max-width: 640px) {
+        .primary {
+          font-size: 14px;
+        }
+
+        .shortText {
+          font-size: 12px;
+        }
+
+        .littleText {
+          font-size: 11px;
+        }
+
+        paper-card {
+          margin: 10px 0px !important;
+          max-width: 100% !important;
+        }
+      }
+
+      paper-card {
+        margin: 10px;
+        width: 100%;
+        --paper-card-header-image: {
+          --iron-image-height: 180px;
+        }
+        ;
+      }
+
+      paper-card:hover {
+        background: #f5f5f5;
+      }
+    </style>
+    <iron-media-query id="mediaQuery" query="(max-width: 640px)"></iron-media-query>
+    <slot name="grid">
+      <div class="list">
+        <div href="[[url]]/n/[[blog.slug]]" class="item">
+          <!--<div class="item-header">
+            <moment-element datetime="[[blog.created_at]]" output-format="MMM DD YYYY"></moment-element>
+            <span class="littleText">Fonte: [[blog.source]]</span>
+          </div>-->
+          <div class="item-content">
+            <div class="overlay" hidden=""></div>
+            <!--<iron-image class="folder" on-click="redirectNews(blog.slug)" preload fade sizing="cover" src$="[[url]][[blog.image]]" ></iron-image>-->
+            <a href$="[[url]]/n/[[blog.slug]]" class="folder-left">
+              <iron-image class="folder folder-left" src="[[url]][[blog.image]]" preload fade sizing="cover"></iron-image>
+            </a>
+            <div class="content">
+              <!--<div class="item-header" hidden=""></div>-->
+              <h2 class="title primary">
+                <a href="[[url]]/n/[[blog.slug]]">[[blog.title]]</a>
+              </h2>
+              <div class="description shortText">
+                <a href="[[url]]/n/[[blog.slug]]">
+                  <echo-html html="{{blog.summary}}"></echo-html>
+                </a>
+              </div>
+              <div class="littleText">
+                <iron-icon class="mini" icon="icons:visibility"></iron-icon>
+                <span class="title">Visitas:</span> [[blog.view_count]]
+              </div>
+              <div class="littleText">
+                <iron-icon class="mini" icon="icons:event"></iron-icon>
+                <span class="title">Data:</span>
+                <moment-element datetime="[[blog.created_at]]" output-format="MMM DD YYYY"></moment-element>
+              </div>
+              <div class="littleText">
+                <iron-icon class="mini" icon="icons:label"></iron-icon>
+                <span class="title">Tags:</span> [[blog.category_list]]
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+      </div>
+    </slot>
+
+    <slot name="list">
+      <paper-card image="[[url]][[blog.image]]" alt="[[blog.name]]" fade-image="true">
+        <div class="card-content primary">
+          <a href="[[url]]/e/[[blog.slug]]" class="primary">
+            [[blog.title]]
+          </a>
+        </div>
+        <div class="card-actions">
+          <a href="[[url]]/n/[[blog.slug]]">
+            <div class="container">
+              <div class="shortText child">
+                <echo-html html="{{blog.summary}}"></echo-html>
+              </div>
+              <div class="littleText">
+                <iron-icon class="mini" icon="icons:visibility"></iron-icon>
+                <span class="title">Visitas:</span> [[blog.view_count]]
+              </div>
+              <div class="littleText">
+                <iron-icon class="mini" icon="icons:event"></iron-icon>
+                <span class="title">Data:</span>
+                <moment-element datetime="[[blog.created_at]]" output-format="MMM DD YYYY"></moment-element>
+              </div>
+              <div class="littleText">
+                <iron-icon class="mini" icon="icons:label"></iron-icon>
+                <span class="title">Tags:</span> [[blog.category_list]]
+              </div>
+
+            </div>
+          </a>
+        </div>
+      </paper-card>
+    </slot>
+
+  </template>
+
+  <dom-module id="echo-html">
+    <template>
+      <span id="description"></span>
+    </template>
+    <script>
+      Polymer({
+        is: 'echo-html',
+        properties: {
+          html: {
+            type: String,
+            value: 'html'
+          }
+        },
+        ready: function () {
+          this.$.description.innerHTML = this.html;
+        }
+      });
+    </script>
+  </dom-module>
+
+  <script>
+    moment.locale('pt-BR');
+    /**
+     
+     * Mostra noticias
+     *
+     * @customElement
+     * @polymer
+     * @demo demo/index.html
+     */
+    class UfgNoticia extends Polymer.Element {
+      static get is() { return 'ufg-noticia'; }
+      static get properties() {
+        return {
+          blog: {
+          },
+          url: {
+            type: String,
+            value: () => {
+              let url = window.location.hostname;
+              return url.indexOf("ufg.br") > 0 ? url : "https://www.ufg.br"
+            }
+          }
+        };
+      }
+
+      redirectNews(slug) {
+        // console.log(slug)
+        window.location = this.url + "n" + slug;
+      }
+
+      /**
+      * Formata a apresentação da data.
+      * Se for mobile ou grade mostra de forma diferente.
+      **/
+      _formatDate(date) {
+        if (!date) return;
+        let format = "dddd, D [de] MMMM [de] YYYY";
+        let mobile = this.$.mediaQuery.queryMatches;
+        if (mobile || this.selector == "grid") format = "ddd, D [de] MMMM [de] YYYY";
+        // if (this.selector == "grid") format = "ddd, D [de] MMMM [de] YYYY";
+
+        if (date.indexOf("00:00") < 0) {
+          format += " [às] h:mm";
+        }
+        return moment(date).format(format);
+      }
+    }
+
+    window.customElements.define(UfgNoticia.is, UfgNoticia);
+  </script>
+</dom-module>
