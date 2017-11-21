@@ -202,7 +202,7 @@
       * Retorna os parâmetos da URL.
       **/
       _getParams(page) {
-        return this.url  + location.search +`&page=${this.page}&per_page=10` ;
+        return this.url  + "?" + location.search +`&page=${this.page}&per_page=10` ;
       }
 
       _handleResponse(e) {
@@ -221,7 +221,10 @@
         setTimeout(function() {
           self.page ++;
           this.$.scrollThreshold.clearTriggers();
-          if(self.page>1){          
+          if(self.page>1){
+            if(self.page*10>self.lastResponse.meta.total){
+              return;
+            }
             self.$.nextNews.generateRequest();
           }
         }.bind(this), 500);
